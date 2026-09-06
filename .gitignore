@@ -1,0 +1,32 @@
+# created by virtualenv automatically
+# Unreal Engine
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+*.sln
+*.slnx
+
+# Visual Studio
+.vs/
+*.VC.db
+*.VC.opendb
+
+# Ignore build artifacts
+*.pdb
+*.obj
+*.log
+
+# Allow project files
+!*.uproject
+!Source/
+!Config/
+!Content/
+
+# Allow your test file
+!test.txt
+
+# Unreal assets
+!*.uasset
+!*.umap
+
