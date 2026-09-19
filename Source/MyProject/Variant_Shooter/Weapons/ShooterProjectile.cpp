@@ -1,8 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 
 #include "ShooterProjectile.h"
 #include "Components/SphereComponent.h"
+#include "Components/DecalComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -15,15 +14,29 @@
 
 AShooterProjectile::AShooterProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	PrimaryActorTick.bCanEverTick = false;
+
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	RootComponent = Mesh;
+
+	Mesh->SetCollisionProfileName("BlockAllDynamic");
+	Mesh->SetNotifyRigidBodyCollision(true);
 
 	// create the collision component and assign it as the root
 	RootComponent = CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Component"));
+
+	ShooterProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>("ShooterProjectileMesh");
+	ShooterProjectileMesh->SetupAttachment(CollisionComponent);
 
 	CollisionComponent->SetSphereRadius(16.0f);
 	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComponent->SetCollisionResponseToAllChannels(ECR_Block);
 	CollisionComponent->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
+
+	
+
 
 	// create the projectile movement component. No need to attach it because it's not a Scene Component
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
@@ -34,14 +47,26 @@ AShooterProjectile::AShooterProjectile()
 
 	// set the default damage type
 	HitDamageType = UDamageType::StaticClass();
+
 }
 
 void AShooterProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
 	
 	// ignore the pawn that shot this projectile
 	CollisionComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+
+	// Dynamic material instance
+	if (ProjectileMat && Mesh)
+	{
+		ProjectileMID = UMaterialInstanceDynamic::Create(ProjectileMat, this);
+		Mesh->SetMaterial(0, ProjectileMID);
+
+		ProjectileColor = FLinearColor::MakeRandomColor();
+		ProjectileMID->SetVectorParameterValue("Color", ProjectileColor);
+	}
 }
 
 void AShooterProjectile::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -54,6 +79,18 @@ void AShooterProjectile::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 void AShooterProjectile::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// Spawn Decal on hit
+	if (UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), SplatMaterial, FVector(32.0f, 32.0f, 32.0f), HitLocation, HitNormal.Rotation(), 10.0f))
+	{
+		UMaterialInstanceDynamic* DecalMID = Decal->CreateDynamicMaterialInstance();
+
+		if (DecalMID)
+		{
+			// Apply projectile color to decal
+			DecalMID->SetVectorParameterValue("Color", ProjectileColor);
+		}
+	}
+
 	// ignore if we've already hit something else
 	if (bHit)
 	{

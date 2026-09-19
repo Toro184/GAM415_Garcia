@@ -9,6 +9,11 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MyProject.h"
+#include "ShooterProjectile.h"
+#include "PistolWeapon.h"
+#include <ShooterCharacter.h>
+
+
 
 AMyProjectCharacter::AMyProjectCharacter()
 {
@@ -44,6 +49,25 @@ AMyProjectCharacter::AMyProjectCharacter()
 	GetCharacterMovement()->AirControl = 0.5f;
 }
 
+void AMyProjectCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Spawn and attach weapon
+	if (PistolWeaponClass)
+	{
+		EquippedGun = GetWorld()->SpawnActor<APistolWeapon>(PistolWeaponClass);
+
+		if (EquippedGun)
+		{
+			EquippedGun->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, TEXT("hand_rSocket")
+
+			);
+		}
+	}
+}
+
+
 void AMyProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {	
 	// Set up action bindings
@@ -59,6 +83,15 @@ void AMyProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
 		// Looking/Aiming
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMyProjectCharacter::LookInput);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AMyProjectCharacter::LookInput);
+
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Started, this, &AMyProjectCharacter::Fire);
+
+		UEnhancedInputComponent* EnhancedInput = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+
+		EnhancedInput->BindAction(AimAction, ETriggerEvent::Started, this, &AMyProjectCharacter::StartAiming);
+		EnhancedInput->BindAction(AimAction, ETriggerEvent::Completed, this, &AMyProjectCharacter::StopAiming);
+
+
 	}
 	else
 	{
@@ -118,3 +151,42 @@ void AMyProjectCharacter::DoJumpEnd()
 	// pass StopJumping to the character
 	StopJumping();
 }
+
+void AMyProjectCharacter::Fire()
+{
+	if (!EquippedGun) return;
+
+	EquippedGun->Fire();
+
+	if (UAnimInstance* AnimInstance = FirstPersonMesh->GetAnimInstance())
+	{
+		AnimInstance->Montage_Play(FireMontage);
+	}
+}
+
+
+void AMyProjectCharacter::StartAiming()
+{
+
+	IsAiming = true;
+}
+
+void AMyProjectCharacter::StopAiming()
+{
+	
+	IsAiming = false;
+}
+
+void AMyProjectCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	PrimaryActorTick.bCanEverTick = true;
+
+	if (EquippedGun && IsAiming)
+	{
+		FRotator AimRot = FirstPersonCameraComponent->GetComponentRotation();
+		EquippedGun->UpdateAimRotation(AimRot);
+	}
+}
+

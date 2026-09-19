@@ -1,9 +1,10 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <Runtime/Engine/Classes/Engine/DamageEvents.h>
 #include "ShooterProjectile.generated.h"
 
 class USphereComponent;
@@ -26,6 +27,8 @@ class MYPROJECT_API AShooterProjectile : public AActor
 	/** Handles movement for the projectile */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovement;
+
+
 
 protected:
 
@@ -79,6 +82,29 @@ public:
 
 	/** Constructor */
 	AShooterProjectile();
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* ShooterProjectileMesh;
+
+	UPROPERTY(EditAnywhere)
+	UMaterial* ShooterProjectileMat;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Decal")
+	UMaterialInterface* SplatMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Decal")
+	TArray<UTexture*> SplatTextures;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic* ProjectileMID;
+	FLinearColor ProjectileColor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInterface* ProjectileMat;
+
 
 protected:
 	

@@ -31,10 +31,6 @@ class MYPROJECT_API AShooterCharacter : public AMyProjectCharacter, public IShoo
 
 protected:
 
-	/** Fire weapon input action */
-	UPROPERTY(EditAnywhere, Category ="Input")
-	UInputAction* FireAction;
-
 	/** Switch weapon input action */
 	UPROPERTY(EditAnywhere, Category ="Input")
 	UInputAction* SwitchWeaponAction;

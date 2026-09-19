@@ -34,6 +34,14 @@ AShooterWeapon::AShooterWeapon()
 	ThirdPersonMesh->SetCollisionProfileName(FName("NoCollision"));
 	ThirdPersonMesh->SetFirstPersonPrimitiveType(EFirstPersonPrimitiveType::WorldSpaceRepresentation);
 	ThirdPersonMesh->bOwnerNoSee = true;
+
+	MuzzleComponent = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleComponent"));
+	MuzzleComponent->SetupAttachment(FirstPersonMesh); 
+
+	
+
+
+
 }
 
 void AShooterWeapon::BeginPlay()
@@ -224,4 +232,15 @@ const TSubclassOf<UAnimInstance>& AShooterWeapon::GetFirstPersonAnimInstanceClas
 const TSubclassOf<UAnimInstance>& AShooterWeapon::GetThirdPersonAnimInstanceClass() const
 {
 	return ThirdPersonAnimInstanceClass;
+}
+
+FVector AShooterWeapon::GetMuzzleLocation() const
+{
+	return MuzzleComponent->GetComponentLocation();
+}
+
+
+FRotator AShooterWeapon::GetMuzzleRotation() const
+{
+	return MuzzleComponent->GetComponentRotation();
 }

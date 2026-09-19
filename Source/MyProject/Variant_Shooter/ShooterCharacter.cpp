@@ -167,16 +167,16 @@ void AShooterCharacter::DoSwitchWeapon()
 	}
 }
 
-void AShooterCharacter::AttachWeaponMeshes(AShooterWeapon* Weapon)
+void AShooterCharacter::AttachWeaponMeshes(AShooterWeapon* WeaponToAttach)
 {
 	const FAttachmentTransformRules AttachmentRule(EAttachmentRule::SnapToTarget, false);
 
 	// attach the weapon actor
-	Weapon->AttachToActor(this, AttachmentRule);
+	WeaponToAttach->AttachToActor(this, AttachmentRule);
 
 	// attach the weapon meshes
-	Weapon->GetFirstPersonMesh()->AttachToComponent(GetFirstPersonMesh(), AttachmentRule, FirstPersonWeaponSocket);
-	Weapon->GetThirdPersonMesh()->AttachToComponent(GetMesh(), AttachmentRule, FirstPersonWeaponSocket);
+	WeaponToAttach->GetFirstPersonMesh()->AttachToComponent(GetFirstPersonMesh(), AttachmentRule, FirstPersonWeaponSocket);
+	WeaponToAttach->GetThirdPersonMesh()->AttachToComponent(GetMesh(), AttachmentRule, FirstPersonWeaponSocket);
 	
 }
 
@@ -213,10 +213,10 @@ FVector AShooterCharacter::GetWeaponTargetLocation()
 	return OutHit.bBlockingHit ? OutHit.ImpactPoint : OutHit.TraceEnd;
 }
 
-void AShooterCharacter::AddWeaponClass(const TSubclassOf<AShooterWeapon>& WeaponClass)
+void AShooterCharacter::AddWeaponClass(const TSubclassOf<AShooterWeapon>& WeaponClassToAdd)
 {
 	// do we already own this weapon?
-	AShooterWeapon* OwnedWeapon = FindWeaponOfType(WeaponClass);
+	AShooterWeapon* OwnedWeapon = FindWeaponOfType(WeaponClassToAdd);
 
 	if (!OwnedWeapon)
 	{
@@ -227,7 +227,7 @@ void AShooterCharacter::AddWeaponClass(const TSubclassOf<AShooterWeapon>& Weapon
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		SpawnParams.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
 
-		AShooterWeapon* AddedWeapon = GetWorld()->SpawnActor<AShooterWeapon>(WeaponClass, GetActorTransform(), SpawnParams);
+		AShooterWeapon* AddedWeapon = GetWorld()->SpawnActor<AShooterWeapon>(WeaponClassToAdd, GetActorTransform(), SpawnParams);
 
 		if (AddedWeapon)
 		{
@@ -247,17 +247,17 @@ void AShooterCharacter::AddWeaponClass(const TSubclassOf<AShooterWeapon>& Weapon
 	}
 }
 
-void AShooterCharacter::OnWeaponActivated(AShooterWeapon* Weapon)
+void AShooterCharacter::OnWeaponActivated(AShooterWeapon* ActivatedWeapon)
 {
 	// update the bullet counter
-	OnBulletCountUpdated.Broadcast(Weapon->GetMagazineSize(), Weapon->GetBulletCount());
+	OnBulletCountUpdated.Broadcast(ActivatedWeapon->GetMagazineSize(), ActivatedWeapon->GetBulletCount());
 
 	// set the character mesh AnimInstances
-	GetFirstPersonMesh()->SetAnimInstanceClass(Weapon->GetFirstPersonAnimInstanceClass());
-	GetMesh()->SetAnimInstanceClass(Weapon->GetThirdPersonAnimInstanceClass());
+	GetFirstPersonMesh()->SetAnimInstanceClass(ActivatedWeapon->GetFirstPersonAnimInstanceClass());
+	GetMesh()->SetAnimInstanceClass(ActivatedWeapon->GetThirdPersonAnimInstanceClass());
 }
 
-void AShooterCharacter::OnWeaponDeactivated(AShooterWeapon* Weapon)
+void AShooterCharacter::OnWeaponDeactivated(AShooterWeapon* DeactivatedWeapon)
 {
 	// unused
 }
@@ -267,14 +267,14 @@ void AShooterCharacter::OnSemiWeaponRefire()
 	// unused
 }
 
-AShooterWeapon* AShooterCharacter::FindWeaponOfType(TSubclassOf<AShooterWeapon> WeaponClass) const
+AShooterWeapon* AShooterCharacter::FindWeaponOfType(TSubclassOf<AShooterWeapon> WeaponClassToFind) const
 {
 	// check each owned weapon
-	for (AShooterWeapon* Weapon : OwnedWeapons)
+	for (AShooterWeapon* Wpn : OwnedWeapons)
 	{
-		if (Weapon->IsA(WeaponClass))
+		if (Wpn->IsA(WeaponClassToFind))
 		{
-			return Weapon;
+			return Wpn;
 		}
 	}
 
