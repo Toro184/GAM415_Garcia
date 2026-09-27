@@ -92,7 +92,7 @@ void AShooterProjectile::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Ot
 			DecalMID->SetVectorParameterValue("Color", ProjectileColor);
 		}
 	}
-	// adding particle effects on hit
+	// Adding particle effects on hit
 	if (HitEffectNiagara)
 	{
 		UNiagaraComponent* FX = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffectNiagara, HitLocation, HitNormal.Rotation());

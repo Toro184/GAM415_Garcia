@@ -30,7 +30,7 @@ class MYPROJECT_API AShooterProjectile : public AActor
 	UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditAnywhere)
-		UNiagaraSystem* colorP;
+	UNiagaraSystem* colorP;
 
 	
 
