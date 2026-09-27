@@ -11,6 +11,8 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 AShooterProjectile::AShooterProjectile()
 {
@@ -90,6 +92,22 @@ void AShooterProjectile::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Ot
 			DecalMID->SetVectorParameterValue("Color", ProjectileColor);
 		}
 	}
+	// adding particle effects on hit
+	if (HitEffectNiagara)
+	{
+		UNiagaraComponent* FX = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffectNiagara, HitLocation, HitNormal.Rotation());
+
+	if (FX)
+	{
+		FLinearColor RandomColorA = FLinearColor::MakeRandomColor();
+		FLinearColor RandomColorB = FLinearColor::MakeRandomColor();
+
+		FX->SetVariableLinearColor("User.ColorA", RandomColorA);
+		FX->SetVariableLinearColor("User.ColorB", RandomColorB);
+	}
+}
+
+
 
 	// ignore if we've already hit something else
 	if (bHit)

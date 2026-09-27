@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include <Runtime/Engine/Classes/Engine/DamageEvents.h>
+#include "Runtime/Engine/Classes/Engine/DamageEvents.h"
 #include "ShooterProjectile.generated.h"
 
 class USphereComponent;
 class UProjectileMovementComponent;
 class ACharacter;
 class UPrimitiveComponent;
+class UNiagaraSystem;
 
 /**
  *  Simple projectile class for a first person shooter game
@@ -27,6 +28,12 @@ class MYPROJECT_API AShooterProjectile : public AActor
 	/** Handles movement for the projectile */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovement;
+
+	UPROPERTY(EditAnywhere)
+		UNiagaraSystem* colorP;
+
+	
+
 
 
 
@@ -97,6 +104,8 @@ public:
 
 	UPROPERTY()
 	UMaterialInstanceDynamic* ProjectileMID;
+
+	UPROPERTY(BlueprintReadOnly)
 	FLinearColor ProjectileColor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -104,6 +113,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UMaterialInterface* ProjectileMat;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FX")
+	UNiagaraSystem* HitEffectNiagara;
 
 
 protected:
