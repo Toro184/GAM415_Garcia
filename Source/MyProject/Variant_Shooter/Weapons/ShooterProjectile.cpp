@@ -13,6 +13,7 @@
 #include "TimerManager.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "perlinProcTerrain.h"
 
 AShooterProjectile::AShooterProjectile()
 {
@@ -104,6 +105,13 @@ void AShooterProjectile::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Ot
 
 		FX->SetVariableLinearColor("User.ColorA", RandomColorA);
 		FX->SetVariableLinearColor("User.ColorB", RandomColorB);
+
+		APerlinProcTerrain* procTerrain = Cast<APerlinProcTerrain>(Other);
+
+		if (procTerrain)
+		{
+			procTerrain->AlterMesh(Hit.ImpactPoint);
+		}
 	}
 }
 
