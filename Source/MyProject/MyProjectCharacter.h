@@ -78,6 +78,10 @@ public:
 
 
 
+	UPROPERTY(EditAnywhere)
+	bool isTeleporting;
+
+
 protected:
 
 	/** Called from Input Actions for movement input */
